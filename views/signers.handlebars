@@ -1,6 +1,6 @@
-<p id='listhead'>Here is a <span class="hl-elite">list of all people</span> who want to see Jonah Smith in Europe:</p>
+<p id='listhead'>Here is a <span class="hl-elite">list of all people</span> from {{city}} who want to see Jonah Smith in Europe:</p>
 <div class='list'>
-    {{#each users}}
-        <p> <a href="{{this.homepage}}"> {{this.firstname}} {{this.lastname}} </a> | {{this.age}} | <a href="/petition/signers/{{this.city}}"></a> {{this.city}}</p>
+    {{#each signers}}
+        <p> <a href="http://{{this.homepage}}"> {{this.firstname}} {{this.lastname}} </a> | {{this.age}} | <a href="/signers/{{this.city}}">{{this.city}}</a></p>
     {{/each}}
 </div>

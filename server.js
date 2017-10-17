@@ -58,13 +58,13 @@ var checkPassword = function(textEnteredInLoginForm, hashedPasswordFromDatabase)
 
 app.get('/petition', (req, res) => {
     if(req.cookies.petition) {
-        res.redirect('/petition/thankyou')
+        res.redirect('/thankyou')
     } else {
-        res.redirect('/petition/register')
+        res.redirect('/register')
     }
 })
 
-app.get('/petition/register', (req, res) => {
+app.get('/register', (req, res) => {
     res.render('register', {
         layout: 'main',
         csrfToken: req.csrfToken()
@@ -102,7 +102,7 @@ app.post('/register_new', (req, res) => {
             .then(results => {
                 const userId = results.rows[0].id
                 req.session.user.id = userId;
-                res.redirect('/petition/profile')
+                res.redirect('/profile')
                 res.end()
             })
             .catch(err => console.log(err));
@@ -110,7 +110,7 @@ app.post('/register_new', (req, res) => {
     }
 })
 
-app.get('/petition/profile', (req, res) => {
+app.get('/profile', (req, res) => {
     res.render('profile', {
         layout: 'main',
         csrfToken: req.csrfToken()
@@ -132,16 +132,16 @@ app.post('/profile_new', (req, res) => {
 
         db.query(q, params)
         .then((results) => {
-            res.redirect('/petition/signature')
+            res.redirect('/signature')
             res.end()
         })
         .catch(err => console.log(err));
     } else {
-        res.redirect('/petition/signature')
+        res.redirect('/signature')
     }
 })
 
-app.get('/petition/signature', (req, res) => {
+app.get('/signature', (req, res) => {
     res.render('signature', {
         layout: 'main',
         csrfToken: req.csrfToken()
@@ -156,13 +156,13 @@ app.post('/signature_new', (req, res) => {
     .then(results => {
         const id = results.rows[0].id
         req.session.user.signatureId = id;
-        res.redirect('/petition/thankyou')
+        res.redirect('/thankyou')
         res.end()
     })
     .catch(err => console.log(err));
 })
 
-app.get('/petition/login', (req, res) => {
+app.get('/login', (req, res) => {
     res.render('login', {
         layout: 'main',
         csrfToken: req.csrfToken()
@@ -194,10 +194,10 @@ app.post('/user_login', (req, res) => {
                     .then((results) => {
                         if(results.rows.length >= 1) {
                             req.session.user.signatureId = results.rows[0].id
-                            res.redirect('/petition/thankyou')
+                            res.redirect('/thankyou')
                         }
                         else {
-                            res.redirect('/petition/signature')
+                            res.redirect('/signature')
                         }
                     }).catch(err => console.log(err));
                 } else {
@@ -211,9 +211,9 @@ app.post('/user_login', (req, res) => {
 })
 
 
-app.get('/petition/thankyou', (req, res) => {
+app.get('/thankyou', (req, res) => {
     if(!req.session.user) {
-        res.redirect('/petition/register')
+        res.redirect('/register')
     }
     if(!req.cookies.petition) {
         res.cookie('petition', 'signed')
@@ -225,7 +225,6 @@ app.get('/petition/thankyou', (req, res) => {
         var signatureUrl = results.rows[0].signature_url;
         const qq = `SELECT * FROM signatures`
         db.query(qq).then((results) => {
-            var amountSignatures = results.rows.length
             res.render('thankyou', {
                 layout: 'main',
                 signatureUrl: signatureUrl,
@@ -234,28 +233,37 @@ app.get('/petition/thankyou', (req, res) => {
         })
     })
     .catch(err => console.log(err));
+
 })
 
 
-app.get('/petition/signers', (req, res) => {
-    const q = `SELECT users.firstname, users.lastname, user_profiles.age, user_profiles.city, user_profiles.homepage FROM users JOIN user_profiles`;
+app.get('/signers', (req, res) => {
+    const q = `SELECT users.firstname, users.lastname, user_profiles.age, user_profiles.city, user_profiles.homepage FROM users FULL JOIN user_profiles ON users.id = user_profiles.user_id`;
     db.query(q)
     .then(results => {
         var signers = results.rows
-        var firstname = signers.firstname
-        var lastname = signers.lastname
-        var age = signers.age
-        var city = signers.city
-        var homepage = signers.homepage
 
         res.render('signers', {
             layout: 'main',
-            // users: users,
-            // firstname: firstname,
-            // lastname: lastname,
-            // age: age,
-            // city: city,
-            // homepage: homepage
+            signers: signers
+        })
+
+    })
+    .catch(err => console.log(err));
+})
+
+app.get('/signers/:city', (req, res) => {
+    var city = req.params.city
+    const q = `SELECT users.firstname, users.lastname, user_profiles.age, user_profiles.homepage FROM users FULL JOIN user_profiles ON users.id = user_profiles.user_id WHERE user_profiles.city = $1`;
+    const params = [city]
+    db.query(q, params)
+    .then(results => {
+        var signers = results.rows
+
+        res.render('signers', {
+            layout: 'main',
+            signers: signers,
+            city: city
         })
     })
     .catch(err => console.log(err));
