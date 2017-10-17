@@ -1,3 +1,5 @@
+/* ::::: MAIN LAYOUT AND HIGHLIGHTS ::::: */
+
 body {
     height: 100vh;
     overflow: hidden;
@@ -5,7 +7,8 @@ body {
     padding: 0;
     box-sizing: border-box;
     background-color: #f4f0e8;
-    background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f4f7f0' fill-opacity='0.97' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");    display: grid;
+    background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f4f7f0' fill-opacity='0.97' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
+    display: grid;
     grid-template-columns: 3fr 1fr 4fr 1fr;
     grid-template-rows: 1fr 2fr 2fr 2fr 2fr 2fr;
     border-bottom: 2px solid #7b3d15;
@@ -29,12 +32,19 @@ img{
     border-right: 2px solid #7b3d15;
 }
 
-#petition-text {
-    grid-column: 3/4;
-    grid-row: 2/5;
+#foot {
+    grid-column: 4 / 5;
+    grid-row: 6 / 7;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+#foot p {
+    margin: 0;
+    padding: 0;
     font-family: 'Special Elite', cursive;
-    font-size: 40px;
-    text-align: center;
+    font-size: 10px;
 }
 
 .hl-elite {
@@ -49,6 +59,99 @@ img{
     font-size: 50px;
     font-weight: bold;
 }
+#filler {
+    display: flex;
+    height: 100%;
+    background-color: brown;
+    grid-row: 1 / 2;
+    grid-column: 3 / 4;
+    margin: 0;
+    padding: 0;
+}
+
+/* ::::: REGISTER ::::: */
+
+
+#register-text {
+    grid-column: 3 / 4;
+    grid-row: 2 / 4;
+    font-family: 'Special Elite', cursive;
+    font-size: 40px;
+    text-align: center;
+    border: 1px solid black;
+}
+
+#register-form {
+    grid-column: 3 / 4;
+    grid-row: 4 / 6;
+    border: 1px solid red;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#register-input-container {
+    width: 100%;
+    height: 80%;
+    border: 1px solid black;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.register-input {
+    height: 49%;
+    width: 45%;
+    font-family: 'Special Elite', cursive;
+    color: #7b3d15;
+    font-size: 25px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 10px;
+}
+
+.input-left {
+    text-align: right;
+    padding-right: 10px;
+}
+
+#register-btn {
+    grid-row: 5 / 6;
+    grid-column: 4 / 5;
+    height: 15%;
+    width: 20%;
+    align-self: center;
+    background-color: #D3852D;
+    font-family: 'Cabin Sketch', cursive;
+    color: #F4F7F0;
+    border: none;
+    font-size: 15px;
+}
+
+#already-logged {
+    grid-row: 6 / 7;
+    grid-column: 3 / 4;
+    font-family: 'Special Elite', cursive;
+    color: black;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* ::::: LOG IN ::::: */
+
+
+#petition-text {
+    grid-column: 3/4;
+    grid-row: 2/5;
+    font-family: 'Special Elite', cursive;
+    font-size: 40px;
+    text-align: center;
+}
+
 
 
 #form{
@@ -167,20 +270,6 @@ img{
 }
 
 
-#foot {
-    grid-column: 4 / 5;
-    grid-row: 6 / 7;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-}
-
-#foot p {
-    margin: 0;
-    padding: 0;
-    font-family: 'Special Elite', cursive;
-    font-size: 10px;
-}
 
 #reminder-id {
     grid-row: 1/7;
@@ -214,5 +303,16 @@ img{
     text-align: center;
 }
 
-/*font-family: 'Cabin Sketch', cursive;
-font-family: 'Special Elite', cursive;*/
+/*
+FONTS:
+font-family: 'Cabin Sketch', cursive; //primary
+font-family: 'Special Elite', cursive; //secondary
+
+COLORS:
+light brown #F3B855;
+cream       #F4F7F0;
+grey        #9F7F75;
+camel       #D3852D;
+dark brown  #7B3D15;
+bg white    #F7F0E5;
+*/

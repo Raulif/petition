@@ -1,0 +1,12 @@
+<p>We are glad you decided to join! Please tell us just a tad more about you.</p>
+<p>All fields are optional ;)</p>
+
+<form class="user-profile" action="/profile_new" method="post">
+    <div id="user-profile-container">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+        <input class="profile-input" name="age" placeholder="age">
+        <input class="profile-input" name="city" placeholder="city">
+        <input class="register-input" name="homepage" placeholder="homepage">
+    </div>
+    <button id="profile-button" type="submit" name="button">CONTINUE</button>
+</form>

@@ -1,6 +1,8 @@
+DROP TABLE IF EXISTS signatures;
+
 CREATE TABLE signatures (
-    signatureid SERIAL PRIMARY KEY,
-    firstname VARCHAR,
-    lastname VARCHAR,
-    signature TEXT
+    id SERIAL PRIMARY KEY,
+    signature_url TEXT NOT NULL,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )

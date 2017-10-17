@@ -1,9 +1,10 @@
 <p>Please enter your log in details</p>
-<form id="login-form" method="POST">
+<form id="login-form" method="POST" action="/user_login">
     <div id="login-input">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}">
         <input class="input" name="email" placeholder="Enter email">
         <input class="input" name="password" placeholder="Enter password">
         <button id="signup-btn" type="submit" name="button">LOG IN!</button>
     </div>
 </form>
-<p>Not yet a member? Then <a href="/register">sign up!</a></p>
+<p>Not yet a member? Then <a href="/petition/register">sign up!</a></p>
