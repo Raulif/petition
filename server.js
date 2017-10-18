@@ -7,7 +7,7 @@ const spicedPg = require('spiced-pg');
 const cookieSession = require('cookie-session')
 const bcrypt = require('bcryptjs');
 const csurf = require('csurf')
-const db = process.env.DATABASE_URL || 'postgres://spicedling:password@localhost:5432/petition';
+var db = spicedPg(process.env.DATABASE_URL || 'postgres:rauliglesias:Fourcade1@localhost:5432/petition');
 
 app.use(cookieSession({
     secret: 'a really hard to guess secret',
@@ -109,6 +109,8 @@ app.post('/register_new', (req, res) => {
         })
         .catch(err => console.log(err));
     })
+    .catch(err => console.log(err));
+
 })
 
 
@@ -238,7 +240,6 @@ app.get('/thankyou', (req, res) => {
         res.redirect('/register')
         return
     }
-    console.log('got to thankyou');
     const q = `SELECT signature_url FROM signatures WHERE id = $1`;
     db.query(q, [req.session.user.signatureId])
     .then(results => {
