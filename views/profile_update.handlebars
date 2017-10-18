@@ -1,0 +1,35 @@
+<p>Update your profile:</p>
+<form id="profile-update-form" action="/profile/save" method="post">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    <div class="profile-field">
+        <p>First name:</p>
+        <input type="text" name="firstname" value="{{userData.firstname}}">
+    </div>
+    <div class="profile-field">
+        <p>Last name:</p>
+        <input type="text" name="lastname" value="{{userData.lastname}}">
+    </div>
+    <div class="profile-field">
+        <p>Email:</p>
+        <input type="text" name="email" value="{{userData.email}}">
+    </div>
+    <div class="profile-field">
+        <p>Password:</p>
+        <input type="password" name="password" value="{{userData.firstname}}">
+    </div>
+    <div class="profile-field">
+        <p>Age:</p>
+        <input type="text" name="age" value="{{userData.age}}">
+    </div>
+    <div class="profile-field">
+        <p>City:</p>
+        <input type="text" name="city" value="{{userData.city}}">
+    </div>
+    <div class="profile-field">
+        <p>Homepage:</p>
+        <input type="text" name="homepage" value="{{userData.homepage}}">
+    </div>
+    <button type="submit" name="button">SAVE</button>
+</form>
+
+<p>Would you rather delete your profile? Then press <a href="/delete_profile">here</a></p>

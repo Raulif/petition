@@ -6,4 +6,4 @@ CREATE TABLE user_profiles (
     age INTEGER,
     city VARCHAR,
     homepage VARCHAR
-)
+);

@@ -1,9 +1,9 @@
 <p>Please enter your log in details</p>
-<form id="login-form" method="POST" action="/user_login">
+<form id="login-form" method="POST" action="/try_login">
     <div id="login-input">
         <input type="hidden" name="_csrf" value="{{csrfToken}}">
         <input class="input" name="email" placeholder="Enter email">
-        <input class="input" name="password" placeholder="Enter password">
+        <input class="input" type="password" name="password" placeholder="Enter password">
         <button id="signup-btn" type="submit" name="button">LOG IN!</button>
     </div>
 </form>

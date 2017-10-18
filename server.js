@@ -7,7 +7,7 @@ const spicedPg = require('spiced-pg');
 const cookieSession = require('cookie-session')
 const bcrypt = require('bcryptjs');
 const csurf = require('csurf')
-var db = spicedPg('postgres:rauliglesias:Fourcade1@localhost:5432/petition');
+const db = process.env.DATABASE_URL || 'postgres://spicedling:password@localhost:5432/petition';
 
 app.use(cookieSession({
     secret: 'a really hard to guess secret',
@@ -22,6 +22,9 @@ app.use(csurf())
 
 app.engine('handlebars', hb())
 app.set('view engine', 'handlebars')
+
+
+// :::: PASSWORD HASHING AND CHECKING FUNCTIONS :::: //
 
 var hashPassword = function(plainTextPassword) {
     return new Promise(function(resolve, reject) {
@@ -54,15 +57,15 @@ var checkPassword = function(textEnteredInLoginForm, hashedPasswordFromDatabase)
 
 // :::: SERVER REQUESTS :::: //
 
-//      HOME        //
-
-app.get('/petition', (req, res) => {
-    if(req.cookies.petition) {
-        res.redirect('/thankyou')
+app.get('/', (req, res) => {
+    if(req.session.user) {
+        res.redirect('/signature')
     } else {
         res.redirect('/register')
     }
 })
+
+// :::: REGISTER :::: //
 
 app.get('/register', (req, res) => {
     res.render('register', {
@@ -81,34 +84,35 @@ app.post('/register_new', (req, res) => {
             reminderId: reminderId,
             csrfToken: req.csrfToken()
         })
-
-    } else {
-        var firstname = req.body.firstname;
-        var lastname = req.body.lastname;
-        var email = req.body.email;
-        var password = req.body.password;
-
-        req.session.user = {
-            firstname: firstname,
-            lastname: lastname,
-            email: email
-        }
-
-        hashPassword(password).then(function(hash) {
-            const q = `INSERT INTO users (firstname, lastname, email, password) VALUES ($1, $2, $3, $4) RETURNING id`;
-            const params = [firstname, lastname, email, hash];
-
-            db.query(q, params)
-            .then(results => {
-                const userId = results.rows[0].id
-                req.session.user.id = userId;
-                res.redirect('/profile')
-                res.end()
-            })
-            .catch(err => console.log(err));
-        })
+        return
     }
+    var firstname = req.body.firstname;
+    var lastname = req.body.lastname;
+    var email = req.body.email;
+    var password = req.body.password;
+
+    req.session.user = {
+        firstname: firstname,
+        lastname: lastname,
+        email: email
+    }
+
+    hashPassword(password).then(function(hash) {
+        const q = `INSERT INTO users (firstname, lastname, email, password) VALUES ($1, $2, $3, $4) RETURNING id`;
+        const params = [firstname, lastname, email, hash];
+
+        db.query(q, params)
+        .then(results => {
+            const userId = results.rows[0].id
+            req.session.user.id = userId;
+            res.redirect('/profile')
+        })
+        .catch(err => console.log(err));
+    })
 })
+
+
+// :::: PROFILE CREATION :::: //
 
 app.get('/profile', (req, res) => {
     res.render('profile', {
@@ -141,7 +145,70 @@ app.post('/profile_new', (req, res) => {
     }
 })
 
+
+// :::: USER LOGIN :::: //
+
+app.get('/login', (req, res) => {
+    res.render('login', {
+        layout: 'main',
+        csrfToken: req.csrfToken()
+    })
+})
+
+app.post('/try_login', (req, res) => {
+    if(!req.body.email || !req.body.password) {
+        console.log('missing info');
+        return ;
+    }
+    var email = req.body.email
+    var password = req.body.password
+
+    hashPassword(password).then((hash) => {
+        const q = `SELECT users.firstname, users.id, users.password, signatures.id AS signatureid FROM users JOIN signatures ON users.id = signatures.user_id WHERE users.email = $1`;
+        db.query(q, [email])
+        .then((queryResults) => {
+            if(queryResults.rowsCount < 1) {
+                console.log("wrong login data");
+                res.redirect('/login')
+                return
+            }
+            const loginData = queryResults.rows[0]
+            console.log(loginData, hash);
+            checkPassword(req.body.password, hash)
+            .then((doesMatch) => {
+                if(!doesMatch) {
+                    console.log("wrong login data");
+                    res.redirect('/login')
+                    return
+                }
+                req.session.user = {
+                    firstname: loginData.firstname,
+                    lastname: loginData.lastname,
+                    id: loginData.id,
+                    signatureId: loginData.signatureid
+                }
+                res.redirect('/signature')
+            })
+            .catch(err => console.log(err));
+
+        })
+        .catch(err => console.log(err));
+    })
+    .catch(err => console.log(err));
+})
+
+
+// :::: SIGNATURE :::: //
+
 app.get('/signature', (req, res) => {
+    if(req.session.user.signatureId) {
+        res.redirect('/thankyou')
+        return
+    }
+    if(!req.session.user) {
+        res.redirect('/register')
+        return
+    }
     res.render('signature', {
         layout: 'main',
         csrfToken: req.csrfToken()
@@ -162,63 +229,16 @@ app.post('/signature_new', (req, res) => {
     .catch(err => console.log(err));
 })
 
-app.get('/login', (req, res) => {
-    res.render('login', {
-        layout: 'main',
-        csrfToken: req.csrfToken()
-    })
-})
 
-app.post('/user_login', (req, res) => {
-    if(!req.body.email || !req.body.password) {
-        console.log('missing info');
-    }
-    var email = req.body.email
-    var password = req.body.password
 
-    hashPassword(password).then((hash) => {
-        const q = `SELECT * FROM users WHERE email = $1`;
-        db.query(q, [email])
-        .then((results) => {
-            var userData = results.rows[0]
-            console.log(userData);
-            checkPassword(password, userData.password).then((doesMatch) => {
-                if(doesMatch) {
-                    req.session.user = {
-                        firstname: userData.firstname,
-                        lastname: userData.lastname,
-                        userId: userData.id
-                    }
-                    const qq = `SELECT id FROM signatures WHERE user_id = $1`
-                    db.query(qq, [req.session.user.id])
-                    .then((results) => {
-                        if(results.rows.length >= 1) {
-                            req.session.user.signatureId = results.rows[0].id
-                            res.redirect('/thankyou')
-                        }
-                        else {
-                            res.redirect('/signature')
-                        }
-                    }).catch(err => console.log(err));
-                } else {
-                    console.log("wrong login data");
-                }
-            })
-            .catch(err => console.log(err));
-        })
-    })
-    .catch(err => console.log(err));
-})
-
+// :::: THANK YOU :::: //
 
 app.get('/thankyou', (req, res) => {
     if(!req.session.user) {
         res.redirect('/register')
+        return
     }
-    if(!req.cookies.petition) {
-        res.cookie('petition', 'signed')
-    }
-
+    console.log('got to thankyou');
     const q = `SELECT signature_url FROM signatures WHERE id = $1`;
     db.query(q, [req.session.user.signatureId])
     .then(results => {
@@ -237,7 +257,13 @@ app.get('/thankyou', (req, res) => {
 })
 
 
+// :::: SIGNERS LIST :::: //
+
 app.get('/signers', (req, res) => {
+    if(!req.session.user) {
+        res.redirect('/register')
+        return
+    }
     const q = `SELECT users.firstname, users.lastname, user_profiles.age, user_profiles.city, user_profiles.homepage FROM users FULL JOIN user_profiles ON users.id = user_profiles.user_id`;
     db.query(q)
     .then(results => {
@@ -253,6 +279,10 @@ app.get('/signers', (req, res) => {
 })
 
 app.get('/signers/:city', (req, res) => {
+    if(!req.session.user) {
+        res.redirect('/register')
+        return
+    }
     var city = req.params.city
     const q = `SELECT users.firstname, users.lastname, user_profiles.age, user_profiles.homepage FROM users FULL JOIN user_profiles ON users.id = user_profiles.user_id WHERE user_profiles.city = $1`;
     const params = [city]
@@ -269,4 +299,23 @@ app.get('/signers/:city', (req, res) => {
     .catch(err => console.log(err));
 })
 
-app.listen(8000, () => console.log('listening'));
+
+// :::: PROFILE UPDATE :::: //
+
+app.get('/profile/update', (req, res) => {
+    const q = `SELECT users.firstname, users.lastname, users.email, users.password, user_profiles.age, user_profiles.city, user_profiles.homepage FROM users JOIN user_profiles ON users.id = user_profiles.user_id WHERE users.id = $1`
+    db.query(q, [req.session.user.id])
+    .then((queryResults) => {
+        var userData = queryResults.rows[0]
+        res.render('profile_update', {
+            layout: 'main',
+            userData: userData,
+            csrfToken: req.csrfToken()
+        })
+    })
+    .catch(err => console.log(err));
+})
+
+// :::: LISTENING ON PORT :::: //
+
+app.listen(process.env.PORT || 8000, () => console.log('listening'));
