@@ -7,7 +7,7 @@ const spicedPg = require('spiced-pg');
 const cookieSession = require('cookie-session')
 const bcrypt = require('bcryptjs');
 const csurf = require('csurf')
-var db = process.env.DATABASE_URL || spicedPg('postgres:rauliglesias:Fourcade1@localhost:5432/petition');
+var db = spicedPg(process.env.DATABASE_URL || 'postgres:rauliglesias:Fourcade1@localhost:5432/petition');
 
 app.use(cookieSession({
     secret: 'a really hard to guess secret',
