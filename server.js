@@ -54,14 +54,27 @@ var checkPassword = function(textEnteredInLoginForm, hashedPasswordFromDatabase)
     });
 }
 
+var updateProfile = function(arrayOfParams) {
+    return new Promise((resolve, reject) => {
+        if(!arrayOfParams.age && !arrayOfParams.city && !arrayOfParams.homepage) {
+            return
+        } else {
+            if(checkForUserOnProfilesTable(userId)) {
+                db.query(`UPDATE user_profiles SET age = $1, city = $2, homepage = $2 WHERE user_id = $4`, [])
+                .then()
+            }
+        }
+    })
+}
 
 // :::: SERVER REQUESTS :::: //
 
 app.get('/', (req, res) => {
-    if(req.session.user) {
-        res.redirect('/signature')
-    } else {
+    if(!req.session.user) {
         res.redirect('/register')
+    }
+    else {
+        res.redirect('/signature')
     }
 })
 
@@ -151,6 +164,10 @@ app.post('/profile_new', (req, res) => {
 // :::: USER LOGIN :::: //
 
 app.get('/login', (req, res) => {
+    if(req.session.user) {
+        res.redirect('/thankyou')
+        return
+    }
     res.render('login', {
         layout: 'main',
         csrfToken: req.csrfToken()
@@ -166,16 +183,16 @@ app.post('/try_login', (req, res) => {
     var password = req.body.password
 
     hashPassword(password).then((hash) => {
-        const q = `SELECT users.firstname, users.id, users.password, signatures.id AS signatureid FROM users JOIN signatures ON users.id = signatures.user_id WHERE users.email = $1`;
+        const q = `SELECT users.firstname, users.id, users.password, signatures.id AS signatureid FROM users FULL JOIN signatures ON users.id = signatures.user_id WHERE users.email = $1`;
         db.query(q, [email])
         .then((queryResults) => {
+            console.log(queryResults);
             if(queryResults.rowsCount < 1) {
                 console.log("wrong login data");
                 res.redirect('/login')
                 return
             }
             const loginData = queryResults.rows[0]
-            console.log(loginData, hash);
             checkPassword(req.body.password, hash)
             .then((doesMatch) => {
                 if(!doesMatch) {
@@ -183,16 +200,16 @@ app.post('/try_login', (req, res) => {
                     res.redirect('/login')
                     return
                 }
+                console.log(loginData);
                 req.session.user = {
                     firstname: loginData.firstname,
                     lastname: loginData.lastname,
                     id: loginData.id,
-                    signatureId: loginData.signatureid
+                    signatureId: loginData.signatureid || null
                 }
                 res.redirect('/signature')
             })
             .catch(err => console.log(err));
-
         })
         .catch(err => console.log(err));
     })
@@ -203,18 +220,19 @@ app.post('/try_login', (req, res) => {
 // :::: SIGNATURE :::: //
 
 app.get('/signature', (req, res) => {
-    if(req.session.user.signatureId) {
-        res.redirect('/thankyou')
-        return
+    if(!req.session.user.signatureId) {
+        res.render('signature', {
+            layout: 'main',
+            csrfToken: req.csrfToken()
+        })
     }
-    if(!req.session.user) {
+    else if(!req.session.user) {
         res.redirect('/register')
         return
     }
-    res.render('signature', {
-        layout: 'main',
-        csrfToken: req.csrfToken()
-    })
+    else {
+        res.redirect('/thankyou')
+    }
 })
 
 app.post('/signature_new', (req, res) => {
@@ -236,12 +254,13 @@ app.post('/signature_new', (req, res) => {
 // :::: THANK YOU :::: //
 
 app.get('/thankyou', (req, res) => {
-    if(!req.session.user) {
-        res.redirect('/register')
+    if(!req.session.user.signatureId) {
+        res.redirect('/signature')
         return
     }
-    const q = `SELECT signature_url FROM signatures WHERE id = $1`;
-    db.query(q, [req.session.user.signatureId])
+
+    const q = `SELECT signature_url FROM signatures WHERE user_id = $1`;
+    db.query(q, [req.session.user.id])
     .then(results => {
         var signatureUrl = results.rows[0].signature_url;
         const qq = `SELECT * FROM signatures`
@@ -252,6 +271,7 @@ app.get('/thankyou', (req, res) => {
                 amountSignatures: results.rows.length
             })
         })
+        .catch(err => console.log(err));
     })
     .catch(err => console.log(err));
 
@@ -272,9 +292,10 @@ app.get('/signers', (req, res) => {
 
         res.render('signers', {
             layout: 'main',
-            signers: signers
+            signers: signers,
+            ageSeparator: ageSeparator,
+            citySeparator: citySeparator
         })
-
     })
     .catch(err => console.log(err));
 })
@@ -290,11 +311,16 @@ app.get('/signers/:city', (req, res) => {
     db.query(q, params)
     .then(results => {
         var signers = results.rows
+        if(signers.age) {
+            var ageSeparator = '|'
+        }
 
         res.render('signers', {
             layout: 'main',
             signers: signers,
-            city: city
+            city: city,
+            from: ' from ',
+            ageSeparator: ageSeparator,
         })
     })
     .catch(err => console.log(err));
@@ -304,7 +330,11 @@ app.get('/signers/:city', (req, res) => {
 // :::: PROFILE UPDATE :::: //
 
 app.get('/profile/update', (req, res) => {
-    const q = `SELECT users.firstname, users.lastname, users.email, users.password, user_profiles.age, user_profiles.city, user_profiles.homepage FROM users JOIN user_profiles ON users.id = user_profiles.user_id WHERE users.id = $1`
+    if(!req.session.user) {
+        res.redirect('/register')
+        return
+    }
+    const q = `SELECT users.firstname, users.lastname, users.email, users.password, user_profiles.age, user_profiles.city, user_profiles.homepage FROM users FULL JOIN user_profiles ON users.id = user_profiles.user_id WHERE users.id = $1`
     db.query(q, [req.session.user.id])
     .then((queryResults) => {
         var userData = queryResults.rows[0]
@@ -316,6 +346,57 @@ app.get('/profile/update', (req, res) => {
     })
     .catch(err => console.log(err));
 })
+
+app.post('/profile/save', (req, res) => {
+    const firstname = req.body.firstname || req.session.user.firstname
+    const lastname = req.body.lastname || req.session.user.lastname
+    const email = req.body.email || req.session.user.email
+    const age = req.body.age || req.session.user.age
+    const city = req.body.city || req.session.user.city
+    const homepage = req.body.homepage || req.session.user.homepage
+    const userId = req.session.user.id
+    const password = req.body.password
+
+
+    const queryUpdateUser = `UPDATE users SET firstname = $1, lastname = $2, email = $3 WHERE id = $4`
+    db.query(queryUpdateUser, [firstname, lastname, email, userId])
+    .then(() => {
+        const queryCheckIfProfileExists = `SELECT EXISTS (SELECT false FROM user_profiles WHERE user_id = $1)`
+        db.query(queryCheckIfProfileExists, [userId])
+        .then((queryResults) => {
+            if(queryResults.rows[0].exists) {
+                const queryUpdateProfile = `UPDATE user_profiles SET age = $1, city = $2, homepage = $3 WHERE user_id = $4`
+                db.query(queryUpdateProfile, [age, city, homepage, userId])
+            } else {
+                if (age || city || homepage) {
+                    const queryInsertProfile = 'INSERT INTO user_profiles (user_id, age, city, homepage) VALUES ($1, $2, $3, $4)'
+                    db.query(queryInsertProfile, [userId, age, city, homepage])
+                }
+            }
+            if(password) {
+                hashPassword(password).then((hash) => {
+                    const queryUpdatePassword = `UPDATE users SET password = $1 WHERE id = $2`
+                    db.query(queryUpdatePassword, [hash, userId])
+                })
+
+            }
+            res.redirect('/thankyou')
+        })
+        .catch(err => console.log(err));
+    })
+    .catch(err => console.log(err));
+})
+
+app.get('/delete_signature', (req, res) => {
+    const queryDeleteSignature = `DELETE FROM signatures WHERE user_id = $1`
+    db.query(queryDeleteSignature, [req.session.user.id])
+    .then(() => {
+        req.session.user.signatureId = "";
+        res.redirect('/signature');
+    })
+    .catch(err => console.log(err));
+})
+
 
 // :::: LISTENING ON PORT :::: //
 
