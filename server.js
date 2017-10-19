@@ -24,7 +24,7 @@ app.engine('handlebars', hb())
 app.set('view engine', 'handlebars')
 
 
-// :::: PASSWORD HASHING AND CHECKING FUNCTIONS :::: //
+// :::: PASSWORD HASHING / CHECKING FUNCTIONS :::: //
 
 var hashPassword = function(plainTextPassword) {
     return new Promise(function(resolve, reject) {
@@ -83,7 +83,8 @@ app.post('/register_new', (req, res) => {
             layout: 'main',
             reminder: reminder,
             reminderId: reminderId,
-            csrfToken: req.csrfToken()
+            csrfToken: req.csrfToken(),
+            inputReminder: 'inputReminder'
         })
         return
     }
@@ -95,7 +96,7 @@ app.post('/register_new', (req, res) => {
     req.session.user = {
         firstname: firstname,
         lastname: lastname,
-        email: email
+        email: email,
     }
 
     hashPassword(password).then(function(hash) {
