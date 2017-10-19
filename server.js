@@ -54,18 +54,6 @@ var checkPassword = function(textEnteredInLoginForm, hashedPasswordFromDatabase)
     });
 }
 
-var updateProfile = function(arrayOfParams) {
-    return new Promise((resolve, reject) => {
-        if(!arrayOfParams.age && !arrayOfParams.city && !arrayOfParams.homepage) {
-            return
-        } else {
-            if(checkForUserOnProfilesTable(userId)) {
-                db.query(`UPDATE user_profiles SET age = $1, city = $2, homepage = $2 WHERE user_id = $4`, [])
-                .then()
-            }
-        }
-    })
-}
 
 // :::: SERVER REQUESTS :::: //
 
@@ -182,34 +170,31 @@ app.post('/try_login', (req, res) => {
     var email = req.body.email
     var password = req.body.password
 
-    hashPassword(password).then((hash) => {
-        const q = `SELECT users.firstname, users.id, users.password, signatures.id AS signatureid FROM users FULL JOIN signatures ON users.id = signatures.user_id WHERE users.email = $1`;
-        db.query(q, [email])
-        .then((queryResults) => {
-            console.log(queryResults);
-            if(queryResults.rowsCount < 1) {
+    const q = `SELECT users.firstname, users.id, users.password, signatures.id AS signatureid FROM users FULL JOIN signatures ON users.id = signatures.user_id WHERE users.email = $1`;
+    db.query(q, [email])
+    .then((queryResults) => {
+        console.log(queryResults);
+        if(queryResults.rowsCount < 1) {
+            console.log("wrong login data");
+            res.redirect('/login')
+            return
+        }
+        const loginData = queryResults.rows[0]
+        checkPassword(req.body.password, loginData.password)
+        .then((doesMatch) => {
+            if(!doesMatch) {
                 console.log("wrong login data");
                 res.redirect('/login')
                 return
             }
-            const loginData = queryResults.rows[0]
-            checkPassword(req.body.password, hash)
-            .then((doesMatch) => {
-                if(!doesMatch) {
-                    console.log("wrong login data");
-                    res.redirect('/login')
-                    return
-                }
-                console.log(loginData);
-                req.session.user = {
-                    firstname: loginData.firstname,
-                    lastname: loginData.lastname,
-                    id: loginData.id,
-                    signatureId: loginData.signatureid || null
-                }
-                res.redirect('/signature')
-            })
-            .catch(err => console.log(err));
+            console.log(loginData);
+            req.session.user = {
+                firstname: loginData.firstname,
+                lastname: loginData.lastname,
+                id: loginData.id,
+                signatureId: loginData.signatureid || null
+            }
+            res.redirect('/signature')
         })
         .catch(err => console.log(err));
     })
@@ -355,7 +340,7 @@ app.post('/profile/save', (req, res) => {
     const city = req.body.city || req.session.user.city
     const homepage = req.body.homepage || req.session.user.homepage
     const userId = req.session.user.id
-    const password = req.body.password
+    const password = req.body.password || null
 
 
     const queryUpdateUser = `UPDATE users SET firstname = $1, lastname = $2, email = $3 WHERE id = $4`
