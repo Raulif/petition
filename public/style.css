@@ -64,12 +64,6 @@ img{
     margin-left: 6%;
 }
 
-/*light brown #F3B855;
-cream       #F4F7F0;
-grey        #9F7F75;
-camel       #D3852D;
-dark brown  #7B3D15;
-bg white    #F7F0E5;*/
 
 #foot {
     grid-column: 4 / 5;
@@ -207,21 +201,28 @@ bg white    #F7F0E5;*/
 }
 
 #warning-id {
-    grid-row: 1/7;
-    grid-column: 1/2;
+    grid-row: 5/6;
+    grid-column: 3/4;
     color: red;
     font-family: 'Special Elite', cursive;
-    font-size: 40px;
+    font-size: 20px;
     font-weight: bold;
-    background-color: rgba(255, 255, 255, 0.5);
-    display: flex;
     text-align:center;
-    align-items: center;
+    margin-top: 120px;
 }
 
 
 /* ::::: LOG IN ::::: */
 
+#failed-login {
+    grid-row: 4/7;
+    grid-column: 3/4;
+    color: red;
+    font-family: 'Special Elite', cursive;
+    font-size: 20px;
+    margin-top: 80px;
+    text-align:center;
+}
 
 #login-intro{
     grid-row: 2 / 3;

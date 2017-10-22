@@ -126,9 +126,7 @@ app.post('/register_new', (req, res) => {
         const queryCheckIfEmailExists = `SELECT EXISTS (SELECT false FROM users WHERE email = $1)`
         db.query(queryCheckIfEmailExists, [req.body.email])
         .then((queryResults) => {
-            console.log('DOES THIS EMAIL EXIST?', queryResults.rows[0].exists);
             if(queryResults.rows[0].exists) {
-                console.log('THE EMAIL EXISTS!!!');
                 let warningId = 'warning-id'
                 let warning = 'This email is already taken. Please choose a different email or log in.'
                 res.render('register', {
@@ -140,7 +138,6 @@ app.post('/register_new', (req, res) => {
                 })
             }
             else {
-                console.log('NO EMAIL :(');
                 var firstname = req.body.firstname;
                 var lastname = req.body.lastname;
                 var email = req.body.email;
@@ -229,7 +226,16 @@ app.get('/login', (req, res) => {
 
 app.post('/try_login', (req, res) => {
     if(!req.body.email || !req.body.password) {
-        console.log('missing info');
+        let failedLoginId = 'failed-login'
+        let failedLogin = 'Wrong email or password. Please try again!'
+        console.log("missing login input");
+        res.render('login', {
+            layout: 'main',
+            failedLoginId: failedLoginId,
+            inputReminder: 'inputReminder',
+            failedLogin: failedLogin,
+            csrfToken: req.csrfToken()
+        })
     }
     else {
         var email = req.body.email
@@ -240,8 +246,16 @@ app.post('/try_login', (req, res) => {
         .then((queryResults) => {
             console.log(queryResults);
             if(queryResults.rowCount < 1) {
-                console.log("wrong login data");
-                res.redirect('/login')
+                let failedLoginId = 'failed-login'
+                let failedLogin = 'Wrong email or password. Please try again!'
+                console.log("wrong login details");
+                res.render('login', {
+                    layout: 'main',
+                    failedLoginId: failedLoginId,
+                    inputReminder: 'inputReminder',
+                    failedLogin: failedLogin,
+                    csrfToken: req.csrfToken()
+                })
 
             }
             else {
@@ -249,9 +263,16 @@ app.post('/try_login', (req, res) => {
                 checkPassword(req.body.password, loginData.password)
                 .then((doesMatch) => {
                     if(!doesMatch) {
-                        console.log("wrong login data");
-                        res.redirect('/login')
-
+                        let failedLoginId = 'failed-login'
+                        let failedLogin = 'Wrong email or password. Please try again!'
+                        console.log("wrong password data");
+                        res.render('login', {
+                            layout: 'main',
+                            failedLoginId: failedLoginId,
+                            inputReminder: 'inputReminder',
+                            failedLogin: failedLogin,
+                            csrfToken: req.csrfToken()
+                        })
                     }
                     else{
                         console.log(loginData);
