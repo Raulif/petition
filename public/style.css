@@ -24,6 +24,7 @@ body {
     flex-direction: column;
     align-items: flex-end;
     justify-content: flex-start;
+    box-shadow: 2px 0px 1px #888888;
 
 }
 
@@ -50,6 +51,8 @@ img{
 .hl-elite {
     background-color: black;
     color: #f4f0e8;
+    text-decoration: none;
+    box-shadow: 2px 2px 1px #888888;
 }
 
 .hl-sketch {
@@ -58,13 +61,22 @@ img{
     font-family: 'Cabin Sketch', cursive;
     font-size: 43px;
     font-weight: bold;
+    box-shadow: 2px 2px 1px #888888;
+
 }
 
+.input {
+    display: flex;
+    flex-direction: column;
+    width: 45%;
+    font-family: 'Special Elite', cursive;
+    font-size: 20px;
+}
 
 /* ::::: REGISTER ::::: */
 
 
-#register-text {
+#register-intro {
     grid-column: 3 / 4;
     grid-row: 2 / 3;
     font-family: 'Special Elite', cursive;
@@ -90,7 +102,7 @@ img{
 
 #register-input-container {
     width: 100%;
-    height: 60%;
+    height: 50%;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -108,13 +120,12 @@ img{
     padding-bottom: 0px;
     padding-left: 20px;
     margin-bottom: 2px;
+    outline-color: #D3852D;
 }
 
-
-
 .left-input-element {
-    text-align: right;
-    padding-right: 20px;
+    display: flex;
+    flex-direction: row-reverse;
     margin-right: 2px;
 }
 
@@ -131,6 +142,8 @@ img{
     font-size: 25px;
     cursor: pointer;
     border-radius: 3px;
+    box-shadow: 3px 3px 1px #888888;
+
 }
 
 #already-logged {
@@ -151,12 +164,11 @@ img{
     cursor: pointer;
 }
 
-.inputReminder {
-    background-color: rgba(211,62,67, 0.3);
-
+.inputReminder::placeholder {
+    color: red;
 }
 
-#reminder-id {
+#warning-id {
     grid-row: 1/7;
     grid-column: 1/2;
     color: red;
@@ -173,137 +185,280 @@ img{
 /* ::::: LOG IN ::::: */
 
 
-#petition-text {
-    grid-column: 3/4;
-    grid-row: 2/5;
+#login-intro{
+    grid-row: 2 / 3;
+    grid-column: 3 / 4;
     font-family: 'Special Elite', cursive;
-    font-size: 40px;
+    font-size: 30px;
     text-align: center;
+    margin-top: 60px;
 }
 
-
-
-#form{
+#login-form {
+    grid-row: 3 / 5;
+    grid-column: 3 /4;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    grid-row: 5/ 7;
+    justify-content: flex-start;
+    height: 100%;
+}
+
+#login-form input {
+    width: 40%;
+    height: 20%;
+    text-align: center;
+    margin-bottom: 10px;
+    outline-color: #D3852D;
+}
+
+#signup-btn {
+    height: 15%;
+    width: 22%;
+    background-color: #D3852D;
+    font-family: 'Cabin Sketch', cursive;
+    color: #F4F7F0;
+    border: none;
+    font-size: 25px;
+    cursor: pointer;
+    border-radius: 3px;
+    box-shadow: 3px 3px 1px #888888;
+
+}
+
+#not-a-member {
+    grid-row: 5 / 6;
     grid-column: 3 / 4;
-    margin-bottom: 15px;
-}
-
-#userinput {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-
-}
-
-.input {
-    display: flex;
-    flex-direction: column;
-    width: 45%;
     font-family: 'Special Elite', cursive;
+    color: black;
     font-size: 20px;
+    text-align: center;
+
 }
 
-.input input{
-    margin-top: 5px;
-    height: 30px;
-    border: 1px solid #7b3d15;
+/* :::: SIGNATURE :::: */
+
+
+#signature-intro {
+    grid-column: 3/4;
+    grid-row: 2/3;
     font-family: 'Special Elite', cursive;
-    color: #7b3d15;
-    font-size: 20px;
-    padding: 0px 0px 0px 10px;
+    font-size: 30px;
+    text-align: center;
 }
 
-#signhere {
-    font-family: 'Special Elite', cursive;
-    font-size: 20px;
-    align-self: flex-start;
-}
-
-#sign-field {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
+#signature-form {
+    grid-column: 3/4;
+    grid-row: 3/5;
+    text-align: center;
 }
 
 #canvas{
-    width: 80%;
-    height: 150px;
+    width: 700px;
+    height: 200px;
     border: 1px solid #7b3d15;
-    align-self: flex-start;
     background-color: white;
 }
 
-#btn {
-    height: 75px;
-    width: 15%;
-    -webkit-clip-path: polygon(0% 0%, 75% 0%, 100% 50%, 75% 100%, 0% 100%);
-    clip-path: polygon(0% 0%, 75% 0%, 100% 50%, 75% 100%, 0% 100%);
-    border: 0px;
-    background-color: #7b3d15;
-    color: #fbf0e8;
+#signature-btn {
+    height: 15%;
+    width: 22%;
+    background-color: #D3852D;
     font-family: 'Cabin Sketch', cursive;
-    font-size: 30px;
-    text-align: left;
+    color: #F4F7F0;
+    border: none;
+    font-size: 25px;
+    cursor: pointer;
+    border-radius: 3px;
+    margin-top: 10px;
+    box-shadow: 3px 3px 1px #888888;
+
 }
 
-#thankyou {
-    grid-row: 2 / 4;
+/* :::: PROFILE :::: */
+
+#profile-intro {
+    font-size: 30px;
+    font-family: 'Special Elite', cursive;
+    grid-row: 2 / 3;
     grid-column: 3 / 4;
-    font-size: 40px;
+    color: black;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#optional {
+    margin-top: 15px;
+    font-size: 20px;
+    padding-left: 15px;
+}
+
+#profile-form {
+    grid-row: 3 / 5;
+    grid-column: 3 /4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100%;
+    margin-top: 15px;
+}
+
+#profile-form input {
+    width: 40%;
+    height: 20%;
+    text-align: center;
+    margin-bottom: 10px;
+    outline-color: #D3852D;
+    margin-bottom: 25px;
+    font-family: 'Special Elite', cursive;
+    font-size: 20px;
+    color: #7b3d15;
+}
+
+#profile-button {
+    height: 15%;
+    width: 15%;
+    background-color: #D3852D;
+    font-family: 'Cabin Sketch', cursive;
+    color: #F4F7F0;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 3px;
+    box-shadow: 3px 3px 1px #888888;
+    padding-top: 6px;
+    color:
+}
+/* :::: THANKYOU :::: */
+
+#thankyou-intro {
+    grid-row: 2 / 3;
+    grid-column: 3 / 4;
+    font-size: 30px;
     font-family: 'Special Elite', cursive;
     text-align: center;
-}
-
-#signature-container {
-    grid-row: 3 / 5;
-    grid-column: 3 / 4;
-    display: flex;
-    align-items: center;
+    margin-top: 60px;
 }
 
 #signature-pic {
-    height: 50%;
-    width: 100%;
+    margin-left: 10%;
+    grid-row: 3 / 4;
+    grid-column: 3 / 4;
+    height: 100%;
+    width: 80%;
     border: 1px dotted #7b3d15;
     background-color: #f4f7f0;
 }
 
-#thankyou-link-container {
-    grid-row: 5 / 6;
+#thankyou-menu {
     grid-column: 3 / 4;
-    font-size: 40px;
+    grid-row: 4 / 7;
+    margin-top: 50px;
     font-family: 'Special Elite', cursive;
-    text-align: center;
-    color: black;
+    font-size: 25px;
+    line-height: 60px;
+
 }
 
-#thankyou-link {
-    grid-row: 6 / 7;
-    grid-column: 3 / 4;
-    font-size: 40px;
-    font-family: 'Cabin Sketch', cursive;
-    text-align: center;
-    text-decoration: none;
-    color: black;
-    font-weight: bold;
+#thankyou-menu ul {
+    list-style-type: none;
 }
 
-#herelink{
+#thankyou-menu ul li:nth-child(1) p {
+    font-size: 20px;
+    display: inline;
+
+}
+
+#thankyou-menu ul li:nth-child(1) {
+    display: inline;
+}
+
+.herelink{
     color: #fbf0e8;
+    text-decoration: none;
     background-color: #7b3d15;
+    box-shadow: 2px 2px 1px #888888;
 }
 
-#listhead {
+
+/* :::: PROFILE UPDATE :::: */
+
+#profile-update-intro {
     grid-row: 2 / 3;
     grid-column: 3 / 4;
-    font-size: 35px;
+    font-size: 30px;
     font-family: 'Special Elite', cursive;
     text-align: center;
+}
+
+#profile-update-form {
+    grid-column: 3 / 4;
+    grid-row: 2 / 7;
+    text-align: center;
+    margin-top: 103px;
+}
+
+.profile-field {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-left: 32%;
+}
+
+#profile-update-form p {
+    font-family: 'Special Elite', cursive;
+    font-size: 20px;
+    margin: 0;
+    padding: 0;
+    color: #D3852D;
+    margin-bottom: 5px;
+    margin-left: 10px;
+}
+
+#profile-update-form input {
+    font-family: 'Special Elite', cursive;
+    font-size: 18px;
+    margin: 0;
+    padding: 0;
+    margin-bottom: 20px;
+    outline-color: #D3852D;
+    height: 32px;
+    width: 50%;
+    padding-left: 10px;
+    text-align: center;
+    color: #7b3d15;
+}
+
+#profile-update-form button {
+    height: 5%;
+    width: 10%;
+    background-color: #D3852D;
+    font-family: 'Cabin Sketch', cursive;
+    color: #F4F7F0;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 3px;
+    box-shadow: 3px 3px 1px #888888;
+    padding-top: 6px;
+}
+
+/* :::: SIGNERS :::: */
+
+#list-intro {
+    grid-row: 2 / 3;
+    grid-column: 3 / 4;
+    font-size: 30px;
+    font-family: 'Special Elite', cursive;
+    text-align: center;
+    width: 80%;
+    margin-left: 10%;
+    line-height: 40px;
 }
 
 .list {
@@ -315,6 +470,57 @@ img{
     font-size: 20px;
     font-family: 'Special Elite', cursive;
     text-align: center;
+}
+
+#signers-city {
+    background-color: #7b3d15;
+    color: #fbf0e8;
+    font-family: 'Cabin Sketch', cursive;
+    font-size: 30px;
+    font-weight: bold;
+    box-shadow: 2px 2px 1px #888888;
+
+}
+
+.logout {
+    grid-row: 1 / 2;
+    grid-column: 4 / 5;
+    background-color: #D3852D;
+    display: none;
+    border-bottom-left-radius: 20px;
+    text-align: center;
+    padding-top: 10px;
+    box-shadow: 3px 3px 1px #888888;
+    font-size: 20px;
+    text-decoration: none;
+    color: #F7F0E5;
+    font-family: 'Cabin Sketch', cursive;
+    z-index: 1;
+}
+
+
+.back-btn {
+    grid-row: 1 / 3;
+    grid-column: 4 / 5;
+    background-color: #E3B179;
+    display: none;
+    text-align: center;
+    border-bottom-left-radius: 20px;
+    box-shadow: 3px 3px 1px #888888;
+    height: 45%;
+    width: 90%;
+    margin-left: 10%;
+    font-size: 20px;
+    text-decoration: none;
+    color: black;
+    font-family: 'Cabin Sketch', cursive;
+}
+
+.back-btn p {
+    margin-top: 58px;
+}
+.show {
+    display: block;
 }
 
 /*

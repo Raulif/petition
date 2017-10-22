@@ -1,28 +1,53 @@
 const express = require('express');
 const app = express();
+// const router = require('./routers/router')
 const hb = require('express-handlebars')
 const bodyParser = require('body-parser')
-const cookieParser = require('cookie-parser')
 const spicedPg = require('spiced-pg');
 const cookieSession = require('cookie-session')
 const bcrypt = require('bcryptjs');
-const csurf = require('csurf')
 var db = spicedPg(process.env.DATABASE_URL || 'postgres:rauliglesias:Fourcade1@localhost:5432/petition');
+const session = require('express-session')
+const Store = require('connect-redis')(session);
+const csurf = require('csurf')
 
 app.use(cookieSession({
     secret: 'a really hard to guess secret',
     maxAge: 1000 * 60 * 60 * 24 * 14
 }));
-app.use(cookieParser())
 app.use(bodyParser.urlencoded({
     extended: false
 }));
+
 app.use('/public', express.static( __dirname + '/public'));
+
+
+app.use(session({
+    store: new Store({
+        ttl: 3600,
+        host: 'localhost', //for heroku use redis-url from heroku
+        port: 6379
+    }),
+    resave: false,
+    saveUninitialized: false,
+    secret: 'my super fun secret'
+}));
 app.use(csurf())
+
+// app.use(router)
 
 app.engine('handlebars', hb())
 app.set('view engine', 'handlebars')
 
+function requireUser(req, res, next) {
+    if (!req.session.user) {
+        console.log('no user session found. I\'ll send you home');
+        res.redirect('/register')
+    } else {
+        console.log('Session user found!');
+        next();
+    }
+}
 
 // :::: PASSWORD HASHING / CHECKING FUNCTIONS :::: //
 
@@ -58,69 +83,105 @@ var checkPassword = function(textEnteredInLoginForm, hashedPasswordFromDatabase)
 // :::: SERVER REQUESTS :::: //
 
 app.get('/', (req, res) => {
-    if(!req.session.user) {
-        res.redirect('/register')
+    if(!!req.session.user) {
+        res.redirect('/thankyou')
+        return;
     }
     else {
-        res.redirect('/signature')
+        res.redirect('/register')
     }
 })
 
 // :::: REGISTER :::: //
 
 app.get('/register', (req, res) => {
-    res.render('register', {
-        layout: 'main',
-        csrfToken: req.csrfToken()
-    })
+    if(!!req.session.user) {
+        console.log('Session User found. Taking you to Thankyou');
+        res.redirect('/thankyou')
+        return;
+    }
+    else {
+        console.log('no session user found');
+        res.render('register', {
+            layout: 'main',
+            csrfToken: req.csrfToken()
+        })
+    }
 })
 
 app.post('/register_new', (req, res) => {
     if(!req.body.firstname || !req.body.lastname || !req.body.email || !req.body.password) {
-        var reminderId = 'reminder-id'
-        var reminder = "You missed something!! Please complete all fields."
+        let warningId = 'warning-id'
+        let warning = "You missed something!! Please complete all fields."
         res.render('register', {
             layout: 'main',
-            reminder: reminder,
-            reminderId: reminderId,
+            warning: warning,
+            warningId: warningId,
             csrfToken: req.csrfToken(),
             inputReminder: 'inputReminder'
         })
         return
+    } else {
+
+        const queryCheckIfEmailExists = `SELECT EXISTS (SELECT false FROM users WHERE email = $1)`
+        db.query(queryCheckIfEmailExists, [req.body.email])
+        .then((queryResults) => {
+            console.log('DOES THIS EMAIL EXIST?', queryResults.rows[0].exists);
+            if(queryResults.rows[0].exists) {
+                console.log('THE EMAIL EXISTS!!!');
+                let warningId = 'warning-id'
+                let warning = 'This email is already taken. Please choose a different email or log in.'
+                res.render('register', {
+                    layout: 'main',
+                    csrfToken: req.csrfToken(),
+                    warning: warning,
+                    warningId: warningId,
+                    inputReminder: 'inputReminder'
+                })
+            }
+            else {
+                console.log('NO EMAIL :(');
+                var firstname = req.body.firstname;
+                var lastname = req.body.lastname;
+                var email = req.body.email;
+                var password = req.body.password;
+
+
+                req.session.user = {
+                    firstname: firstname,
+                    lastname: lastname,
+                    email: email,
+                }
+
+                hashPassword(password).then(function(hash) {
+                    const q = `INSERT INTO users (firstname, lastname, email, password) VALUES ($1, $2, $3, $4) RETURNING id`;
+                    const params = [firstname, lastname, email, hash];
+
+                    db.query(q, params)
+                    .then(results => {
+                        const userId = results.rows[0].id
+                        req.session.user.id = userId;
+                        res.redirect('/profile')
+                    })
+                    .catch(err => console.log(err));
+                })
+                .catch(err => console.log(err));
+
+            }
+
+        }).catch(err => console.log("THERE WAS AN ERROR IN /register_new",err));
+
     }
-    var firstname = req.body.firstname;
-    var lastname = req.body.lastname;
-    var email = req.body.email;
-    var password = req.body.password;
-
-    req.session.user = {
-        firstname: firstname,
-        lastname: lastname,
-        email: email,
-    }
-
-    hashPassword(password).then(function(hash) {
-        const q = `INSERT INTO users (firstname, lastname, email, password) VALUES ($1, $2, $3, $4) RETURNING id`;
-        const params = [firstname, lastname, email, hash];
-
-        db.query(q, params)
-        .then(results => {
-            const userId = results.rows[0].id
-            req.session.user.id = userId;
-            res.redirect('/profile')
-        })
-        .catch(err => console.log(err));
-    })
-    .catch(err => console.log(err));
-
 })
 
 
 // :::: PROFILE CREATION :::: //
 
-app.get('/profile', (req, res) => {
+app.get('/profile', requireUser, (req, res) => {
     res.render('profile', {
         layout: 'main',
+        showLogout: 'show',
+        showBack: 'show',
         csrfToken: req.csrfToken()
     })
 })
@@ -153,71 +214,79 @@ app.post('/profile_new', (req, res) => {
 // :::: USER LOGIN :::: //
 
 app.get('/login', (req, res) => {
-    if(req.session.user) {
-        res.redirect('/thankyou')
+    if(!!req.session.user) {
+        console.log('Session User found, taking you to Signature');
+        res.redirect('/signature')
         return
     }
-    res.render('login', {
-        layout: 'main',
-        csrfToken: req.csrfToken()
-    })
+    else {
+        res.render('login', {
+            layout: 'main',
+            csrfToken: req.csrfToken()
+        })
+    }
 })
 
 app.post('/try_login', (req, res) => {
     if(!req.body.email || !req.body.password) {
         console.log('missing info');
-        return ;
     }
-    var email = req.body.email
-    var password = req.body.password
+    else {
+        var email = req.body.email
+        var password = req.body.password
 
-    const q = `SELECT users.firstname, users.id, users.password, signatures.id AS signatureid FROM users FULL JOIN signatures ON users.id = signatures.user_id WHERE users.email = $1`;
-    db.query(q, [email])
-    .then((queryResults) => {
-        console.log(queryResults);
-        if(queryResults.rowsCount < 1) {
-            console.log("wrong login data");
-            res.redirect('/login')
-            return
-        }
-        const loginData = queryResults.rows[0]
-        checkPassword(req.body.password, loginData.password)
-        .then((doesMatch) => {
-            if(!doesMatch) {
+        const q = `SELECT users.firstname, users.id, users.password, signatures.id AS signatureid FROM users FULL JOIN signatures ON users.id = signatures.user_id WHERE users.email = $1`;
+        db.query(q, [email])
+        .then((queryResults) => {
+            console.log(queryResults);
+            if(queryResults.rowCount < 1) {
                 console.log("wrong login data");
                 res.redirect('/login')
-                return
+
             }
-            console.log(loginData);
-            req.session.user = {
-                firstname: loginData.firstname,
-                lastname: loginData.lastname,
-                id: loginData.id,
-                signatureId: loginData.signatureid || null
+            else {
+                const loginData = queryResults.rows[0]
+                checkPassword(req.body.password, loginData.password)
+                .then((doesMatch) => {
+                    if(!doesMatch) {
+                        console.log("wrong login data");
+                        res.redirect('/login')
+
+                    }
+                    else{
+                        console.log(loginData);
+                        req.session.user = {
+                            firstname: loginData.firstname,
+                            lastname: loginData.lastname,
+                            id: loginData.id,
+                            signatureId: loginData.signatureid || null
+                        }
+                        res.redirect('/signature')
+
+                    }
+                })
+                .catch(err => console.log(err));
+
             }
-            res.redirect('/signature')
         })
         .catch(err => console.log(err));
-    })
-    .catch(err => console.log(err));
+    }
 })
 
 
 // :::: SIGNATURE :::: //
 
-app.get('/signature', (req, res) => {
-    if(!req.session.user.signatureId) {
+app.get('/signature', requireUser, (req, res) => {
+    if(!!req.session.user.signatureId) {
+        console.log('Signature found, taking you to thankyou');
+        res.redirect('/thankyou')
+        return;
+    } else {
         res.render('signature', {
-            layout: 'main',
+            layout: 'canvas-layout',
+            showLogout: 'show',
             csrfToken: req.csrfToken()
         })
-    }
-    else if(!req.session.user) {
-        res.redirect('/register')
-        return
-    }
-    else {
-        res.redirect('/thankyou')
     }
 })
 
@@ -239,74 +308,65 @@ app.post('/signature_new', (req, res) => {
 
 // :::: THANK YOU :::: //
 
-app.get('/thankyou', (req, res) => {
+app.get('/thankyou', requireUser, (req, res) => {
     if(!req.session.user.signatureId) {
+        console.log('no signature id found, taking you to signature');
         res.redirect('/signature')
         return
     }
-
-    const q = `SELECT signature_url FROM signatures WHERE user_id = $1`;
-    db.query(q, [req.session.user.id])
-    .then(results => {
-        var signatureUrl = results.rows[0].signature_url;
-        const qq = `SELECT * FROM signatures`
-        db.query(qq).then((results) => {
-            res.render('thankyou', {
-                layout: 'main',
-                signatureUrl: signatureUrl,
-                amountSignatures: results.rows.length
+    else {
+        const q = `SELECT signature_url FROM signatures WHERE user_id = $1`;
+        db.query(q, [req.session.user.id])
+        .then(results => {
+            var signatureUrl = results.rows[0].signature_url;
+            const qq = `SELECT * FROM signatures`
+            db.query(qq).then((results) => {
+                res.render('thankyou', {
+                    layout: 'main',
+                    showLogout: 'show',
+                    signatureUrl: signatureUrl,
+                    amountSignatures: results.rows.length
+                })
             })
+            .catch(err => console.log(err));
         })
         .catch(err => console.log(err));
-    })
-    .catch(err => console.log(err));
-
+    }
 })
 
 
 // :::: SIGNERS LIST :::: //
 
-app.get('/signers', (req, res) => {
-    if(!req.session.user) {
-        res.redirect('/register')
-        return
-    }
-    const q = `SELECT users.firstname, users.lastname, user_profiles.age, user_profiles.city, user_profiles.homepage FROM users FULL JOIN user_profiles ON users.id = user_profiles.user_id`;
+app.get('/signers', requireUser, (req, res) => {
+    const q = `SELECT users.firstname, users.lastname, user_profiles.age, user_profiles.city, user_profiles.homepage FROM users FULL JOIN user_profiles ON users.id = user_profiles.user_id JOIN signatures ON signatures.user_id = users.id`;
     db.query(q)
     .then(results => {
         var signers = results.rows
-
+        console.log(signers);
         res.render('signers', {
             layout: 'main',
-            signers: signers,
-            ageSeparator: ageSeparator,
-            citySeparator: citySeparator
+            showLogout: 'show',
+            showBack: 'show',
+            signers: signers
         })
     })
     .catch(err => console.log(err));
 })
 
-app.get('/signers/:city', (req, res) => {
-    if(!req.session.user) {
-        res.redirect('/register')
-        return
-    }
+app.get('/signers/:city', requireUser, (req, res) => {
     var city = req.params.city
-    const q = `SELECT users.firstname, users.lastname, user_profiles.age, user_profiles.homepage FROM users FULL JOIN user_profiles ON users.id = user_profiles.user_id WHERE user_profiles.city = $1`;
+    const q = `SELECT users.firstname, users.lastname, user_profiles.age, user_profiles.homepage FROM users JOIN signatures ON signatures.user_id = users.id FULL JOIN user_profiles ON users.id = user_profiles.user_id WHERE user_profiles.city = $1`;
     const params = [city]
     db.query(q, params)
     .then(results => {
-        var signers = results.rows
-        if(signers.age) {
-            var ageSeparator = '|'
-        }
-
+        var signers = results.rows;
         res.render('signers', {
             layout: 'main',
             signers: signers,
             city: city,
-            from: ' from ',
-            ageSeparator: ageSeparator,
+            showLogout: 'show',
+            showBack: 'show',
+            from: ' from '
         })
     })
     .catch(err => console.log(err));
@@ -315,17 +375,15 @@ app.get('/signers/:city', (req, res) => {
 
 // :::: PROFILE UPDATE :::: //
 
-app.get('/profile/update', (req, res) => {
-    if(!req.session.user) {
-        res.redirect('/register')
-        return
-    }
+app.get('/profile/update', requireUser, (req, res) => {
     const q = `SELECT users.firstname, users.lastname, users.email, users.password, user_profiles.age, user_profiles.city, user_profiles.homepage FROM users FULL JOIN user_profiles ON users.id = user_profiles.user_id WHERE users.id = $1`
     db.query(q, [req.session.user.id])
     .then((queryResults) => {
         var userData = queryResults.rows[0]
         res.render('profile_update', {
             layout: 'main',
+            showLogout: 'show',
+            showBack: 'show',
             userData: userData,
             csrfToken: req.csrfToken()
         })
@@ -383,6 +441,11 @@ app.get('/delete_signature', (req, res) => {
     .catch(err => console.log(err));
 })
 
+app.get('/logout', (req, res) =>{
+    req.session = null;
+    console.log(req.session);
+    res.redirect('/register');
+})
 
 // :::: LISTENING ON PORT :::: //
 
