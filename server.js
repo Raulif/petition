@@ -80,6 +80,7 @@ var checkPassword = function(textEnteredInLoginForm, hashedPasswordFromDatabase)
 }
 
 
+
 // :::: SERVER REQUESTS :::: //
 
 app.get('/', (req, res) => {
@@ -108,7 +109,6 @@ app.get('/register', (req, res) => {
         })
     }
 })
-
 app.post('/register_new', (req, res) => {
     if(!req.body.firstname || !req.body.lastname || !req.body.email || !req.body.password) {
         let warningId = 'warning-id'

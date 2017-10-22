@@ -33,6 +33,44 @@ img{
     border-right: 2px solid #7b3d15;
 }
 
+#player {
+    position: absolute;
+    width: 25%;
+    height: 100%;
+    transition-duration: 0.5s;
+    transition-property: transform;
+    transform: translateX(-100%);
+}
+
+.showPlayer#player {
+    transform: translateX(0%);
+}
+
+#player-button {
+    grid-row: 6 / 7;
+    grid-column: 2 / 3;
+    height: 30%;
+    width: 80%;
+    background-color: #9F7F75;
+    font-family: 'Cabin Sketch', cursive;
+    color: #F4F7F0;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 3px;
+    box-shadow: 3px 3px 1px #888888;
+    text-align: center;
+    margin-top: 80%;
+    margin-left: 6%;
+}
+
+/*light brown #F3B855;
+cream       #F4F7F0;
+grey        #9F7F75;
+camel       #D3852D;
+dark brown  #7B3D15;
+bg white    #F7F0E5;*/
+
 #foot {
     grid-column: 4 / 5;
     grid-row: 6 / 7;
@@ -371,7 +409,6 @@ img{
 #thankyou-menu ul li:nth-child(1) p {
     font-size: 20px;
     display: inline;
-
 }
 
 #thankyou-menu ul li:nth-child(1) {
@@ -496,6 +533,7 @@ img{
     color: #F7F0E5;
     font-family: 'Cabin Sketch', cursive;
     z-index: 1;
+    height: 30px;
 }
 
 
@@ -507,7 +545,7 @@ img{
     text-align: center;
     border-bottom-left-radius: 20px;
     box-shadow: 3px 3px 1px #888888;
-    height: 45%;
+    height: 80px;
     width: 90%;
     margin-left: 10%;
     font-size: 20px;
@@ -517,7 +555,7 @@ img{
 }
 
 .back-btn p {
-    margin-top: 58px;
+    margin-top: 50px;
 }
 .show {
     display: block;
