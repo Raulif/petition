@@ -510,6 +510,11 @@ img{
     text-align: center;
 }
 
+.city-list {
+    text-decoration: none;
+    color: #7b3d15;
+}
+
 #signers-city {
     background-color: #7b3d15;
     color: #fbf0e8;
@@ -517,6 +522,7 @@ img{
     font-size: 30px;
     font-weight: bold;
     box-shadow: 2px 2px 1px #888888;
+
 
 }
 
