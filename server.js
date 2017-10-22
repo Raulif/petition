@@ -105,6 +105,7 @@ app.get('/register', (req, res) => {
         console.log('no session user found');
         res.render('register', {
             layout: 'main',
+            hidegreet: 'hide-greet',
             csrfToken: req.csrfToken()
         })
     }
@@ -117,6 +118,7 @@ app.post('/register_new', (req, res) => {
             layout: 'main',
             warning: warning,
             warningId: warningId,
+            hidegreet: 'hide-greet',
             csrfToken: req.csrfToken(),
             inputReminder: 'inputReminder'
         })
@@ -133,6 +135,7 @@ app.post('/register_new', (req, res) => {
                     layout: 'main',
                     csrfToken: req.csrfToken(),
                     warning: warning,
+                    hidegreet: 'hide-greet',
                     warningId: warningId,
                     inputReminder: 'inputReminder'
                 })
@@ -178,7 +181,7 @@ app.get('/profile', requireUser, (req, res) => {
     res.render('profile', {
         layout: 'main',
         showLogout: 'show',
-        showBack: 'show',
+        firstname: req.session.user.firstname,
         csrfToken: req.csrfToken()
     })
 })
@@ -219,6 +222,7 @@ app.get('/login', (req, res) => {
     else {
         res.render('login', {
             layout: 'main',
+            hidegreet: 'hide-greet',
             csrfToken: req.csrfToken()
         })
     }
@@ -234,6 +238,7 @@ app.post('/try_login', (req, res) => {
             failedLoginId: failedLoginId,
             inputReminder: 'inputReminder',
             failedLogin: failedLogin,
+            hidegreet: 'hide-greet',
             csrfToken: req.csrfToken()
         })
     }
@@ -254,6 +259,7 @@ app.post('/try_login', (req, res) => {
                     failedLoginId: failedLoginId,
                     inputReminder: 'inputReminder',
                     failedLogin: failedLogin,
+                    hidegreet: 'hide-greet',
                     csrfToken: req.csrfToken()
                 })
 
@@ -271,6 +277,7 @@ app.post('/try_login', (req, res) => {
                             failedLoginId: failedLoginId,
                             inputReminder: 'inputReminder',
                             failedLogin: failedLogin,
+                            hidegreet: 'hide-greet',
                             csrfToken: req.csrfToken()
                         })
                     }
@@ -306,6 +313,7 @@ app.get('/signature', requireUser, (req, res) => {
         res.render('signature', {
             layout: 'canvas-layout',
             showLogout: 'show',
+            firstname: req.session.user.firstname,
             csrfToken: req.csrfToken()
         })
     }
@@ -345,6 +353,7 @@ app.get('/thankyou', requireUser, (req, res) => {
                 res.render('thankyou', {
                     layout: 'main',
                     showLogout: 'show',
+                    firstname: req.session.user.firstname,
                     signatureUrl: signatureUrl,
                     amountSignatures: results.rows.length
                 })
@@ -368,6 +377,7 @@ app.get('/signers', requireUser, (req, res) => {
             layout: 'main',
             showLogout: 'show',
             showBack: 'show',
+            firstname: req.session.user.firstname,
             signers: signers
         })
     })
@@ -387,6 +397,7 @@ app.get('/signers/:city', requireUser, (req, res) => {
             city: city,
             showLogout: 'show',
             showBack: 'show',
+            firstname: req.session.user.firstname,
             from: ' from '
         })
     })
@@ -406,6 +417,7 @@ app.get('/profile/update', requireUser, (req, res) => {
             showLogout: 'show',
             showBack: 'show',
             userData: userData,
+            firstname: req.session.user.firstname,
             csrfToken: req.csrfToken()
         })
     })

@@ -33,6 +33,22 @@ img{
     border-right: 2px solid #7b3d15;
 }
 
+.greet {
+    grid-row: 1 / 2,auto;
+    grid-column: 2 / 4;
+    font-family: 'Cabin Sketch', cursive;
+    font-size: 15px;
+    margin-left: 5px;
+}
+
+.greet-name{
+    color: #7b3d15;
+}
+
+.hide-greet {
+    display: none;
+}
+
 #player {
     position: absolute;
     width: 25%;
