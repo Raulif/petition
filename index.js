@@ -3,10 +3,9 @@ const app = express();
 // const router = require('./routers/router')
 const hb = require('express-handlebars')
 const bodyParser = require('body-parser')
-const spicedPg = require('spiced-pg');
 const cookieSession = require('cookie-session')
+const db = require('./db-queries/db-queries')
 const bcrypt = require('bcryptjs');
-const db = spicedPg(process.env.DATABASE_URL || 'postgres:rauliglesias:Fourcade1@localhost:5432/petition');
 const session = require('express-session')
 const Store = require('connect-redis')(session);
 const csurf = require('csurf')
@@ -178,7 +177,7 @@ app.post('/register_new', (req, res) => {
 
                 .then(hash => {
 
-                    db.postNewUser(firstname, lastname, email, hash);
+                    db.postNewUser(firstname, lastname, email, hash)
 
                         .then(results => {
 

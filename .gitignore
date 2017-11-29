@@ -3,3 +3,4 @@ node_modules
 package-lock.json
 grid-template.html
 grid.css
+redisfun.js

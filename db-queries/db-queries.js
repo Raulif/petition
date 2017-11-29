@@ -65,8 +65,8 @@ module.exports.postUserProfile = (userId, userAge, userCity, userHomepage) => {
 
     return db.query(query, params)
 
-            .then(() => return({success: true}))
-            
+            .then(() => {return({success: true})})
+
             .catch(err => console.log("error in // DB-QUERIES // POST USER PROFILE",err));
 
 }
@@ -132,11 +132,9 @@ module.exports.getSignatures = (userId) => {
     return db.query(query)
 
             .then(results => {
-
-                const userSignature = results.rows.find(signature => {
-                    signature.user_id == userId
-                })
-
+                console.log('results: ', results);
+                const userSignature = results.rows.find(signature => signature.user_id == userId)
+                console.log(userSignature);
                 const userSignatureUrl = userSignature.signature_url
 
                 return({
@@ -191,7 +189,7 @@ module.exports.getUsersByCity = (city) => {
 
     const params = [city]
 
-    return db.query(query)
+    return db.query(query, params)
 
             .then(results => {
 
@@ -247,7 +245,7 @@ module.exports.updateUserInfo = (firstname, lastname, email, userId) => {
 
     return db.query(query, params)
 
-            .then(() => return({success: true}))
+            .then(() => {return({success: true})})
 
             .catch(err => console.log("error in // DB-QUERIES // UPDATE USER INFO",err));
 }
@@ -289,7 +287,7 @@ module.exports.updateProfile = (age, city, homepage, userId) => {
 
     return db.query(query, params)
 
-            .then(() => return({success: true}))
+            .then(() => {return({success: true})})
 
             .catch(err => console.log("error in // DB-QUERIES // UPDATE PROFILE",err));
 }
@@ -297,15 +295,15 @@ module.exports.updateProfile = (age, city, homepage, userId) => {
 //INSERT PROFILE
 module.exports.insertProfile = (userId, age, city, homepage) => {
 
-    const query = ' INSERT INTO user_profiles
+    const query = ` INSERT INTO user_profiles
                     (user_id, age, city, homepage)
-                    VALUES ($1, $2, $3, $4)'
+                    VALUES ($1, $2, $3, $4)`
 
     const params = [userId, age, city, homepage]
 
     return db.query(query, params)
 
-            .then(() => return({success: true}))
+            .then(() => {return({success: true})})
 
             .catch(err => console.log("error in // DB-QUERIES // INSERT PROFILE",err));
 }
@@ -321,7 +319,7 @@ module.exports.updatePassword = (hash, userId) => {
 
     return db.query(query, params)
 
-            .then(() => return({success: true}))
+            .then(() => {return({success: true})})
 
             .catch(err => console.log("error in // DB-QUERIES // UPDATE PASSWORD",err));
 }
@@ -337,7 +335,7 @@ module.exports.deleteSignature = (userId) => {
 
     return db.query(query, params)
 
-            .then(() => return({success: true}))
+            .then(() => {return({success: true})})
 
             .catch(err => console.log("error in // DB-QUERIES // DELETE SIGNATURE",err));
 
