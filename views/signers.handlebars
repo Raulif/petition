@@ -1,6 +1,16 @@
-<p id='list-intro'>Here is the <span class="hl-elite">list of all people</span> {{from}} <span id="signers-city">{{city}}</span> who want to see Jonah Smith in Europe:</p>
+<p id='list-intro'>
+    Here is the
+    <span class="hl-elite">list of all people</span>
+
+    {{from}}
+
+    <span id="signers-city">{{city}}</span>
+    who want to see Jonah Smith in Europe:
+</p>
 <div class='list'>
+
     {{#each signers}}
+
         <p> {{#if this.homepage}}
                 <a href="http://{{this.homepage}}">
                     {{this.firstname}} {{this.lastname}}
@@ -8,12 +18,17 @@
             {{else}}
                 {{this.firstname}} {{this.lastname}}
             {{/if}}
+
             {{#if this.age}}
                 | {{this.age}}
             {{/if}}
             {{#if this.city}}
-                | <a class="city-list" href="/signers/{{this.city}}">{{this.city}}</a>
+                |
+                <a class="city-list" href="/signers/{{this.city}}">
+                    {{this.city}}
+                </a>
             {{/if}}
         </p>
+        
     {{/each}}
 </div>

@@ -8,7 +8,7 @@ client.on('error', function(err) {
     console.log(err); //handle the error, otherwise node will crash
 });
 
-//Client is liek redis client
+//Client is like redis client
 
 client.set('funky', 'chicken', function(err, data) {
     console.log(err || data);

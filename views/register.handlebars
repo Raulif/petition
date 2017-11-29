@@ -1,17 +1,44 @@
-<p id="register-intro">Do you know <span class="hl-sketch">Jonah Smith</span><span class="hl-elite">?</span><br><span class="hl-elite">Sign</span> our petition to  encourage his record label to bring him to <span class="hl-elite">tour around Europe!</span></p>
+<p id="register-intro">
+    Do you know
+    <span class="hl-sketch">Jonah Smith</span>
+    <span class="hl-elite">?</span>
+    <br>
+    <span class="hl-elite">Sign</span>
+    our petition to  encourage his record label to bring him to
+    <span class="hl-elite">tour around Europe!</span>
+</p>
+
 <div id={{warningId}}>{{warning}}</div>
 
 <form id="register-form" method="POST" action="/register_new">
     <p>Please register with your details:</p>
     <div id="register-input-container">
-        <input type="hidden" name="_csrf" value={{csrfToken}}>
-        <input class="register-input left-input-element {{inputReminder}}" name="firstname" placeholder="first name">
-        <input class="register-input {{inputReminder}}" name="lastname" placeholder="last name">
-        <input class="register-input left-input-element {{inputReminder}}" name="email" placeholder="email">
-        <input class="register-input {{inputReminder}}" type="password" name="password" placeholder="password">
+        <input  type="hidden"
+                name="_csrf"
+                value={{csrfToken}}>
+
+        <input  class="register-input left-input-element {{inputReminder}}"
+                name="firstname"
+                placeholder="first name">
+
+        <input  class="register-input {{inputReminder}}"
+                name="lastname"
+                placeholder="last name">
+
+        <input  class="register-input left-input-element {{inputReminder}}"
+                name="email"
+                placeholder="email">
+
+        <input  class="register-input {{inputReminder}}"
+                type="password"
+                name="password"
+                placeholder="password">
     </div>
-    <button id="register-btn" type="submit" name="button">SIGN UP</button>
+    <button id="register-btn" type="submit" name="button">
+        SIGN UP
+    </button>
 </form>
+
 <div id="already-logged">
     <p>Did you already sign up?</p>
     <a class="hl-elite" href="/login"> LOG IN</a>

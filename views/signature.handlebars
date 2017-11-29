@@ -1,8 +1,23 @@
 
-<p id="signature-intro">Please <span class="hl-elite">sign</span> in the box below:</p>
+<p id="signature-intro">
+    Please
+    <span class="hl-elite">sign</span>
+    in the box below:
+</p>
 <form id="signature-form" method="POST" action="/signature_new">
-    <input type="hidden" name="_csrf" value="{{csrfToken}}">
-    <input id="signature" type="hidden" name="signature">
+
+    <input  type="hidden"
+            name="_csrf"
+            value="{{csrfToken}}">
+
+    <input  id="signature"
+            type="hidden"
+            name="signature">
+
     <canvas id="canvas"></canvas>
-    <button id="signature-btn" type="submit">SEND</button>
+
+    <button id="signature-btn" type="submit">
+        SEND
+    </button>
+    
 </form>

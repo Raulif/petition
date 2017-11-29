@@ -1,9 +1,34 @@
-<p id="login-intro">Please <span class="hl-elite">log in</span> with your email and password details:</p>
+<p id="login-intro">
+    Please
+    <span class="hl-elite">log in</span>
+    with your email and password details:
+</p>
+
 <div id={{failedLoginId}}>{{failedLogin}}</div>
-<form id="login-form" method="POST" action="/try_login">
-    <input type="hidden" name="_csrf" value="{{csrfToken}}">
-    <input class="input {{inputReminder}}" name="email" placeholder="Enter email">
-    <input class="input {{inputReminder}}" type="password" name="password" placeholder="Enter password">
-    <button id="signup-btn" type="submit" name="button">LOG IN!</button>
+<form   id="login-form"
+        method="POST"
+        action="/try_login">
+
+    <input  type="hidden"
+            name="_csrf"
+            value="{{csrfToken}}">
+
+    <input  class="input {{inputReminder}}"
+            name="email"
+            placeholder="Enter email">
+
+    <input  class="input {{inputReminder}}"
+            type="password" name="password"
+            placeholder="Enter password">
+
+    <button id="signup-btn"
+            type="submit"
+            name="button">
+            LOG IN!
+    </button>
 </form>
-<p id="not-a-member">Not yet a member? Then <a href="/register" class="hl-elite" >SIGN UP</a></p>
+
+<p id="not-a-member">
+    Not yet a member? Then
+    <a href="/register" class="hl-elite" >SIGN UP</a>
+</p>
