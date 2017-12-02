@@ -150,7 +150,7 @@ app.post('/register_new', (req, res) => {
 
             .then(results => {
 
-            if(!results.succcess) {
+            if(!results.success) {
 
                 let warningId = 'warning-id'
                 let warning = 'This email is already taken. Please choose a different email or log in.'
@@ -182,7 +182,7 @@ app.post('/register_new', (req, res) => {
                         .then(results => {
 
                             if(results.success) {
-                                const userId = results.rows[0].id
+                                const userId = results.id
                                 req.session.user.id = userId;
                                 res.redirect('/profile')
                             }

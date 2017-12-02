@@ -15,7 +15,8 @@ module.exports.checkEmail = (email) => {
     return db.query(query, params)
 
             .then(results => {
-                if(queryResults.rows[0].exists) {
+                console.log('email: ', email, ' checkemail results:', results);
+                if(!!results.rows[0].exists) {
                     return({ success: false })
                 }
 
@@ -132,9 +133,9 @@ module.exports.getSignatures = (userId) => {
     return db.query(query)
 
             .then(results => {
-                console.log('results: ', results);
+
                 const userSignature = results.rows.find(signature => signature.user_id == userId)
-                console.log(userSignature);
+
                 const userSignatureUrl = userSignature.signature_url
 
                 return({
